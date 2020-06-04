@@ -2,26 +2,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WheelController : MonoBehaviour
+public class MecanumWheelController : WheelController
 {
-    public WheelCollider wheel;
-    public WheelHit hit;
-    public float forceMult = 10;
-    public float brakeForce = 1f;
-    public float force;
-    protected float targetForce;
-    public Rigidbody robotBody;
 
+    public float initAngle = 45;
     // Start is called before the first frame update
-    public virtual void Start()
+    public override void Start()
     {
         wheel = GetComponent<WheelCollider>();
         hit = new WheelHit();
     }
 
     // Update is called once per frame
-    public virtual void LateUpdate()
+    public override void LateUpdate()
     {
+        wheel.steerAngle = initAngle;
         bool hitGround = wheel.GetGroundHit(out hit);
         //print(wheel.rpm);
         if(targetForce==0){
@@ -37,7 +32,7 @@ public class WheelController : MonoBehaviour
           
     }
 
-    public virtual void SetForce(float target){
+    public override void SetForce(float target){
         targetForce = target;
     }
 
