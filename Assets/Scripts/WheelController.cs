@@ -23,7 +23,7 @@ public class WheelController : MonoBehaviour
     public virtual void LateUpdate()
     {
         bool hitGround = wheel.GetGroundHit(out hit);
-        //print(wheel.rpm);
+        //print(hit.forwardSlip);
         if(targetForce==0){
             wheel.brakeTorque= brakeForce;
         }else{
@@ -39,6 +39,10 @@ public class WheelController : MonoBehaviour
 
     public virtual void SetForce(float target){
         targetForce = target;
+    }
+
+    public virtual bool IsGrounded(){
+        return wheel.isGrounded;
     }
 
 }

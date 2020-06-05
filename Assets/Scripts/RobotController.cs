@@ -24,15 +24,19 @@ public class RobotController : MonoBehaviour
         float rightPower = Mathf.Clamp(drive - turn, -1.0f, 1.0f);
         */
         Vector2 driveVec = new Vector2(-1*Input.GetAxis("Horizontal"),Input.GetAxis("Vertical"));
+        float turn = Input.GetKey(KeyCode.J)?-1:(Input.GetKey(KeyCode.L)?1:0);
         float robotAngle = Mathf.Atan2(driveVec.y, driveVec.x) - Mathf.PI/4;
         float driveRad = driveVec.magnitude;
 
-        print(body.angularVelocity);
-        float v1 = Mathf.Cos(robotAngle) * driveRad;
-        float v2 = Mathf.Sin(robotAngle) * driveRad;
-        float v3 = Mathf.Sin(robotAngle) * driveRad;
-        float v4 = Mathf.Cos(robotAngle) * driveRad;
-        if(driveRad==0){
+        bool notAllWheelsGrounded = !(fLWheel.IsGrounded()||fRWheel.IsGrounded()||bLWheel.IsGrounded()||bRWheel.IsGrounded());
+
+        //print(body.angularVelocity);
+        float v1 = Mathf.Cos(robotAngle) * driveRad - turn;
+        float v2 = Mathf.Sin(robotAngle) * driveRad + turn;
+        float v3 = Mathf.Sin(robotAngle) * driveRad - turn;
+        float v4 = Mathf.Cos(robotAngle) * driveRad + turn;
+        print(v4);
+        if(driveRad==0&&turn==0&&!notAllWheelsGrounded){
             body.drag = 15;
             body.angularDrag = 15;
         }else{
