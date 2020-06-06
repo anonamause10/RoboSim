@@ -10,6 +10,7 @@ public class WheelController : MonoBehaviour
     public float brakeForce = 1f;
     public float force;
     protected float targetForce;
+    public float encoderVal;
     public Rigidbody robotBody;
 
     // Start is called before the first frame update
@@ -22,6 +23,7 @@ public class WheelController : MonoBehaviour
     // Update is called once per frame
     public virtual void LateUpdate()
     {
+        encoderVal+=wheel.rpm*Time.deltaTime;
         bool hitGround = wheel.GetGroundHit(out hit);
         //print(hit.forwardSlip);
         if(targetForce==0){
@@ -43,6 +45,10 @@ public class WheelController : MonoBehaviour
 
     public virtual bool IsGrounded(){
         return wheel.isGrounded;
+    }
+
+    public void resetEncoder(){
+        encoderVal = 0;
     }
 
 }

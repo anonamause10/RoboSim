@@ -2,15 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RobotController : MonoBehaviour
+public class MecanumBotController : MonoBehaviour
 {
     public WheelController fRWheel, bRWheel, fLWheel, bLWheel;
+    private PIDController pidDrive;
 
     private Rigidbody body;
 
     // Start is called before the first frame update
     void Start()
     {
+        pidDrive = new PIDController(0.2f,0.05f,1.0f);
         body = GetComponent<Rigidbody>();
     }
 
@@ -37,9 +39,6 @@ public class RobotController : MonoBehaviour
         float v3 = Mathf.Sin(robotAngle) * driveRad - turn;
         float v4 = Mathf.Cos(robotAngle) * driveRad + turn;
         print(fLWheel.encoderVal);
-        if(Input.GetKey(KeyCode.F)){
-            resetEncoders();
-        }
         if(driveRad==0&&turn==0&&!notAllWheelsGrounded){
             body.drag = 15;
             body.angularDrag = 15;
@@ -55,10 +54,7 @@ public class RobotController : MonoBehaviour
 
     }
 
-    public void resetEncoders(){
-        fLWheel.resetEncoder();
-        fRWheel.resetEncoder();
-        bLWheel.resetEncoder();
-        bRWheel.resetEncoder();
+    public float getGyroAngle(){
+        return transform.eulerAngles.y;
     }
 }
