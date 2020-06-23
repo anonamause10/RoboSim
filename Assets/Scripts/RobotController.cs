@@ -36,7 +36,7 @@ public class RobotController : MonoBehaviour
         float v2 = Mathf.Sin(robotAngle) * driveRad + turn;
         float v3 = Mathf.Sin(robotAngle) * driveRad - turn;
         float v4 = Mathf.Cos(robotAngle) * driveRad + turn;
-        print(fLWheel.encoderVal);
+        //print(fLWheel.encoderVal);
         if(Input.GetKey(KeyCode.F)){
             resetEncoders();
         }
