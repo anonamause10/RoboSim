@@ -12,22 +12,44 @@ public class RoboController : MonoBehaviour
     private float forwardVel;
     private float sideVel;
     private float turnVel;
+    private float actualTurnVel;
 
     private Vector3 velVec;
+    private Vector3 actualVelVec;
+    private Vector3 velDampVec = Vector3.zero;
+    private Rigidbody rb;
+    private float turnDampVel = 0f;
+
+    [SerializeField] private Transform distSensorT;
+
+    private RaycastHit forwardCast;
+    private RaycastHit backCast;
+    private RaycastHit leftCast;
+    private RaycastHit rightCast;
 
     void Start()
     {
-        maxforwardVel = 5;
-        maxSideVel = 4;
+        maxforwardVel = 8;
+        maxSideVel = 8;
         maxTurnVel = 90;
+        rb = GetComponent<Rigidbody>();
+
     }
 
     // Update is called once per frame
     void Update()
     {
         velVec.Set(sideVel, 0, forwardVel);
-        transform.Translate(velVec * Time.deltaTime);
-        transform.Rotate(Vector3.up*turnVel*Time.deltaTime);
+        actualVelVec = Vector3.SmoothDamp(actualVelVec,velVec, ref velDampVec, 0.1f);
+        actualTurnVel = Mathf.SmoothDamp(actualTurnVel, turnVel, ref turnDampVel, 0.1f);
+
+        transform.Translate(actualVelVec * Time.deltaTime);
+        transform.Rotate(Vector3.up*actualTurnVel*Time.deltaTime);
+
+        Physics.Raycast(distSensorT.position, transform.forward, out forwardCast);
+        Physics.Raycast(distSensorT.position, -transform.forward, out backCast);
+        Physics.Raycast(distSensorT.position, -transform.right, out leftCast);
+        Physics.Raycast(distSensorT.position, transform.right, out rightCast);
     }
 
     public float getMaxforwardVel()
@@ -93,6 +115,32 @@ public class RoboController : MonoBehaviour
         this.turnVel = turnVel*maxTurnVel;
     }
 
+    public Vector3 getTrueVelocity(){
+        return rb.velocity;
+    }
 
+    public float getTrueAngularVelocity(){
+        return rb.angularVelocity.y;
+    }
+
+    public float getGyroAngle(){
+        return transform.eulerAngles.y;
+    }
+
+    public float getForwardDist(){
+        return forwardCast.distance;
+    }
+
+    public float getBackDist(){
+        return backCast.distance;
+    }
+
+    public float getLeftDist(){
+        return leftCast.distance;
+    }
+
+    public float getRightDist(){
+        return rightCast.distance;
+    }
     
 }
