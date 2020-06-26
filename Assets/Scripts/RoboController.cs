@@ -20,7 +20,7 @@ public class RoboController : MonoBehaviour
     private Rigidbody rb;
     private float turnDampVel = 0f;
 
-    [SerializeField] private Transform distSensorT;
+    private Transform distSensorT;
 
     private RaycastHit forwardCast;
     private RaycastHit backCast;
@@ -33,6 +33,7 @@ public class RoboController : MonoBehaviour
         maxSideVel = 8;
         maxTurnVel = 90;
         rb = GetComponent<Rigidbody>();
+        distSensorT = transform.Find("Body").Find("DistanceSensor");
 
     }
 
@@ -52,12 +53,12 @@ public class RoboController : MonoBehaviour
         Physics.Raycast(distSensorT.position, transform.right, out rightCast);
     }
 
-    public float getMaxforwardVel()
+    public float getMaxForwardVel()
     {
         return this.maxforwardVel;
     }
 
-    public void setMaxforwardVel(float maxforwardVel)
+    public void setMaxForwardVel(float maxforwardVel)
     {
         this.maxforwardVel = maxforwardVel;
     }
@@ -117,6 +118,10 @@ public class RoboController : MonoBehaviour
 
     public Vector3 getTrueVelocity(){
         return rb.velocity;
+    }
+
+    public string getTrueVelocityStr(){
+        return rb.velocity.x + " " + rb.velocity.y + " " + rb.velocity.z;
     }
 
     public float getTrueAngularVelocity(){

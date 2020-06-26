@@ -20,6 +20,6 @@ public class TeleController : MonoBehaviour
         robot.setSideVel(Input.GetAxis("Horizontal"));
         robot.setForwardVel(Input.GetAxis("Vertical"));
         
-        print(robot.getTrueAngularVelocity());
+        //print(robot.getForwardDist());
     }
 }
