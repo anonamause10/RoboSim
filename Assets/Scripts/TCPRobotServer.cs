@@ -42,11 +42,7 @@ public class TCPRobotServer : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () { 		
-		if (Input.GetKeyDown(KeyCode.Space)) {             
-			sendMessage("This is a message from your server.");         
-		}else if(Input.GetKeyDown(KeyCode.Y)){
-			sendMessage("Stop");
-		}
+		sendDataMessage();
 	}  	
 	
 	/// <summary> 	
@@ -73,7 +69,11 @@ public class TCPRobotServer : MonoBehaviour {
 							// Convert byte array to string message. 							
 							string clientMessage = Encoding.ASCII.GetString(incommingData); 							
 							Debug.Log("client message received as: " + clientMessage);
-							callCommand(clientMessage);
+							string[] messages = clientMessage.Split('|');
+							foreach (string m in messages)
+							{
+								callCommand(m);
+							}
 						}while (length > 0);
 						
 					} 				
@@ -101,19 +101,47 @@ public class TCPRobotServer : MonoBehaviour {
 				byte[] serverMessageAsByteArray = Encoding.ASCII.GetBytes(serverMessage); 				
 				// Write byte array to socketConnection stream.               
 				stream.Write(serverMessageAsByteArray, 0, serverMessageAsByteArray.Length);               
-				Debug.Log("Server sent his message - should be received by client");           
+				//Debug.Log("Server sent his message - should be received by client");           
 			}       
 		} 		
-		catch (SocketException socketException) {             
+		catch (Exception socketException) { 
+			if(socketException is ObjectDisposedException){
+				enabled = false;
+			}      
 			Debug.Log("Socket exception: " + socketException);         
 		} 	
 	} 
+
+	private void sendDataMessage(){
+		string str = "data ";
+		str += roboController.getMaxForwardVel() + " ";
+		str += roboController.getMaxSideVel() + " ";
+		str += roboController.getMaxTurnVel() + " ";
+		str += roboController.getForwardVel() + " ";
+		str += roboController.getSideVel() + " ";
+		str += roboController.getTurnVel() + " ";
+		str += roboController.getTrueVelocityStr() + " ";
+		str += roboController.getTrueAngularVelocity() + " ";
+		str += roboController.getGyroAngle() + " ";
+		str += roboController.getForwardDist() + " ";
+		str += roboController.getBackDist() + " ";
+		str += roboController.getLeftDist() + " ";
+		str += roboController.getRightDist() + " ";
+		sendMessage(str);
+
+	}
 
     private void callCommand(string message){
         string[] args = message.Split(' ');
 
 		if(args[0] == "connectPlz"){
 			sendMessage("ok connected");
+			return;
+		}
+
+		if(args[0] == "stop"){
+			print("done");
+			enabled = false;
 			return;
 		}
 
@@ -141,50 +169,10 @@ public class TCPRobotServer : MonoBehaviour {
 			case "setTurnVel":
 				roboController.setTurnVel(float.Parse(args[2]));
 				break;
-			case "getMaxForwardVel":
-				sendMessage("maxForwardVel "+roboController.getMaxForwardVel());
-				break;
-			case "getMaxSideVel":
-				sendMessage("maxSideVel "+roboController.getMaxSideVel());
-				break;
-			case "getMaxTurnVel":
-				sendMessage("maxTurnVel "+roboController.getMaxTurnVel());
-				break;
-			case "getForwardVel":
-				sendMessage("forwardVel "+roboController.getForwardVel());
-				break;
-			case "getSideVel":
-				sendMessage("sideVel "+roboController.getSideVel());
-				break;
-			case "getTurnVel":
-				sendMessage("turnVel "+roboController.getTurnVel());
-				break;
-			case "getTrueVelocity":
-				string s = roboController.getTrueVelocityStr();
-				sendMessage("trueVel "+s);
-				break;
-			case "getTrueAngularVelocity":
-				sendMessage("trueAngVel "+roboController.getTrueAngularVelocity());
-				break;
-			case "getGyroAngle":
-				sendMessage("gyroAngle "+roboController.getGyroAngle());
-				break;
-			case "getForwardDist":
-				sendMessage("forwardDist "+roboController.getForwardDist());
-				break;
-			case "getBackDist":
-				sendMessage("backDist "+roboController.getBackDist());
-				break;
-			case "getLeftDist":
-				sendMessage("leftDist "+roboController.getLeftDist());
-				break;
-			case "getRightDist":
-				sendMessage("rightDist "+roboController.getRightDist());
-				break;
 			default:
 				break;
 		}
-		sendMessage(" command executed");
+		//sendMessage(" command executed");
         
     }
 }

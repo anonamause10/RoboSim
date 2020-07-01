@@ -19,6 +19,7 @@ public class RoboController : MonoBehaviour
     private Vector3 velDampVec = Vector3.zero;
     private Rigidbody rb;
     private float turnDampVel = 0f;
+    private float gyroAngle;
 
     private Transform distSensorT;
 
@@ -27,6 +28,7 @@ public class RoboController : MonoBehaviour
     private RaycastHit leftCast;
     private RaycastHit rightCast;
 
+
     void Start()
     {
         maxforwardVel = 8;
@@ -34,12 +36,13 @@ public class RoboController : MonoBehaviour
         maxTurnVel = 90;
         rb = GetComponent<Rigidbody>();
         distSensorT = transform.Find("Body").Find("DistanceSensor");
-
+        gyroAngle = transform.eulerAngles.y;
     }
 
     // Update is called once per frame
     void Update()
     {
+
         velVec.Set(sideVel, 0, forwardVel);
         actualVelVec = Vector3.SmoothDamp(actualVelVec,velVec, ref velDampVec, 0.1f);
         actualTurnVel = Mathf.SmoothDamp(actualTurnVel, turnVel, ref turnDampVel, 0.1f);
@@ -51,6 +54,7 @@ public class RoboController : MonoBehaviour
         Physics.Raycast(distSensorT.position, -transform.forward, out backCast);
         Physics.Raycast(distSensorT.position, -transform.right, out leftCast);
         Physics.Raycast(distSensorT.position, transform.right, out rightCast);
+        gyroAngle = transform.eulerAngles.y;
     }
 
     public float getMaxForwardVel()
@@ -129,7 +133,7 @@ public class RoboController : MonoBehaviour
     }
 
     public float getGyroAngle(){
-        return transform.eulerAngles.y;
+        return gyroAngle;
     }
 
     public float getForwardDist(){
