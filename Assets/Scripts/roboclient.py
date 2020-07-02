@@ -28,51 +28,60 @@ class Robot:
         self.t1.start()
 
     def inundate(self):
-        while(self.connected):
-            in_data =  self.client.recv(1024).decode()
-            dataParts = in_data.split(' ')
-            if(dataParts[0] != "data"):
-                return
-            self.maxForwardVel = float(dataParts[1])
-            self.maxSideVel = float(dataParts[2])
-            self.maxTurnVel = float(dataParts[3])
-            self.forwardVel = float(dataParts[4])
-            self.turnVel = float(dataParts[5])
-            self.sideVel = float(dataParts[6])
-            self.trueVel = (float(dataParts[7]),float(dataParts[8]),float(dataParts[9]))
-            self.trueAngVel = float(dataParts[10])
-            self.gyroAngle = float(dataParts[11])
-            self.forwardDist = float(dataParts[12])
-            self.backDist = float(dataParts[13])
-            self.leftDist = float(dataParts[14])
-            self.rightDist = float(dataParts[15])
-            time.sleep(0.01)
+        try:
+            while(self.connected):
+                in_data =  self.client.recv(1024).decode()
+                dataParts = in_data.split(' ')
+                if(dataParts[0] != "data"):
+                    return
+                self.maxForwardVel = float(dataParts[1])
+                self.maxSideVel = float(dataParts[2])
+                self.maxTurnVel = float(dataParts[3])
+                self.forwardVel = float(dataParts[4])
+                self.turnVel = float(dataParts[5])
+                self.sideVel = float(dataParts[6])
+                self.trueVel = (float(dataParts[7]),float(dataParts[8]),float(dataParts[9]))
+                self.trueAngVel = float(dataParts[10])
+                self.gyroAngle = float(dataParts[11])
+                self.forwardDist = float(dataParts[12])
+                self.backDist = float(dataParts[13])
+                self.leftDist = float(dataParts[14])
+                self.rightDist = float(dataParts[15])
+                time.sleep(0.01)
+        except:
+            print("Disconnected")
 
 
     
     def setMaxForwardVel(self, val):
         string = "robocommand setMaxForwardVel " + str(val)+"|"
         self.client.sendall(bytes(string,'UTF-8'))
+        time.sleep(0.001)
 
     def setMaxSideVel(self, val):
         string = "robocommand setMaxSideVel " + str(val)+"|"
         self.client.sendall(bytes(string,'UTF-8'))
+        time.sleep(0.001)
 
     def setMaxTurnVel(self, val):
         string = "robocommand setMaxTurnVel " + str(val)+"|"
         self.client.sendall(bytes(string,'UTF-8'))
+        time.sleep(0.001)
 
     def setForwardVel(self, val):
         string = "robocommand setForwardVel " + str(val)+"|"
         self.client.sendall(bytes(string,'UTF-8'))
+        time.sleep(0.001)
 
     def setSideVel(self, val):
         string = "robocommand setSideVel " + str(val)+"|"
         self.client.sendall(bytes(string,'UTF-8'))
+        time.sleep(0.001)
 
     def setTurnVel(self, val):
         string = "robocommand setTurnVel " + str(val)+"|"
         self.client.sendall(bytes(string,'UTF-8'))
+        time.sleep(0.001)
 
     def getMaxForwardVel(self):
        return self.maxForwardVel
@@ -122,13 +131,9 @@ robot = Robot()
 while(not robot.connected):
     None
 robot.setForwardVel(0.5)
-time.sleep(3)
-robot.setForwardVel(0)
-robot.setTurnVel(1)
-while(robot.getGyroAngle()<90):
-    print(robot.getGyroAngle())
+while(robot.getForwardDist()>10):
     None
-robot.setTurnVel(0)
+robot.setForwardVel(0)
 robot.stop()
 
     
