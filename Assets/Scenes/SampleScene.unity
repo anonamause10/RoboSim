@@ -134,7 +134,7 @@ GameObject:
   - component: {fileID: 262534681}
   - component: {fileID: 262534680}
   m_Layer: 0
-  m_Name: Border (2)
+  m_Name: FrontWall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1271,7 +1271,7 @@ GameObject:
   - component: {fileID: 966987905}
   - component: {fileID: 966987904}
   m_Layer: 0
-  m_Name: Border
+  m_Name: LeftWall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1581,7 +1581,7 @@ GameObject:
   - component: {fileID: 1370500455}
   - component: {fileID: 1370500454}
   m_Layer: 0
-  m_Name: Border (1)
+  m_Name: BackWall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1824,7 +1824,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1478822338}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d0fe63eed59e8db46ad7d4aa2d647b55, type: 3}
   m_Name: 
@@ -1853,6 +1853,7 @@ GameObject:
   - component: {fileID: 1571291688}
   - component: {fileID: 1571291687}
   - component: {fileID: 1571291686}
+  - component: {fileID: 1571291689}
   m_Layer: 0
   m_Name: Floor
   m_TagString: Untagged
@@ -1918,6 +1919,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1571291689
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1571291685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 745fead03334db040bb4d3f72d1fd262, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  width: 100
+  height: 100
+  depth: 0
+  scale: 20
 --- !u!1 &1676587948
 GameObject:
   m_ObjectHideFlags: 0
@@ -2149,7 +2166,7 @@ GameObject:
   - component: {fileID: 2044521579}
   - component: {fileID: 2044521578}
   m_Layer: 0
-  m_Name: Border (3)
+  m_Name: RightWall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
