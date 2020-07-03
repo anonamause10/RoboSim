@@ -130,6 +130,20 @@ class Robot:
 robot = Robot()
 while(not robot.connected):
     None
+robot.setTurnVel(0.5)
+while(robot.getGyroAngle()<90):
+    None
+robot.setTurnVel(0)
+time.sleep(0.2)
+robot.setForwardVel(0.5)
+while(robot.getLeftDist()<10):
+    None
+time.sleep(0.5)
+robot.setForwardVel(0)
+robot.setTurnVel(-0.2)
+while(robot.getGyroAngle()>3 or robot.getGyroAngle()<357):
+    None
+robot.setTurnVel(0)
 robot.setForwardVel(0.5)
 while(robot.getForwardDist()>10):
     None
