@@ -28,6 +28,8 @@ public class RoboController : MonoBehaviour
     private RaycastHit leftCast;
     private RaycastHit rightCast;
 
+    private TCPRobotServer server;
+
 
     void Start()
     {
@@ -37,11 +39,22 @@ public class RoboController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         distSensorT = transform.Find("Body").Find("DistanceSensor");
         gyroAngle = transform.eulerAngles.y;
+        server = GetComponent<TCPRobotServer>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        if(Input.GetKeyDown(KeyCode.Y)){
+            
+            if(server.turnedOn){
+                server.kill();
+            }else{
+                server = gameObject.AddComponent<TCPRobotServer>() as TCPRobotServer;
+            }
+            
+            print("server booped");
+        }
 
         velVec.Set(sideVel, 0, forwardVel);
         actualVelVec = Vector3.SmoothDamp(actualVelVec,velVec, ref velDampVec, 0.1f);

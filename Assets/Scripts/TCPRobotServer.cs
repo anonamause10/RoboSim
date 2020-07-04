@@ -29,6 +29,9 @@ public class TCPRobotServer : MonoBehaviour {
 	/// Robot 	
 	/// </summary> 
     private RoboController roboController;
+
+	public bool turnedOn = true;
+	public bool readyToKill = false;
 	#endregion 	
 		
 	// Use this for initialization
@@ -38,11 +41,27 @@ public class TCPRobotServer : MonoBehaviour {
 		tcpListenerThread.IsBackground = true; 		
 		tcpListenerThread.Start(); 	
         roboController = GetComponent<RoboController>();
-	}  	
+		turnedOn = true;
+		readyToKill = false;
+	}
+
+	public void kill(){
+		//tcpListenerThread.Abort();
+		turnedOn = false;
+	}
+
+	public void startUp(){
+		if(!turnedOn){
+			turnedOn = true;
+		}
+	}
 	
 	// Update is called once per frame
 	void Update () { 		
 		sendDataMessage();
+		if(readyToKill){
+			Destroy(this);
+		}
 	}  	
 	
 	/// <summary> 	
@@ -55,7 +74,7 @@ public class TCPRobotServer : MonoBehaviour {
 			tcpListener.Start();              
 			Debug.Log("Server is listening");              
 			Byte[] bytes = new Byte[1024];  			
-			while (true) { 				
+			while (true) { 
 				using (connectedTcpClient = tcpListener.AcceptTcpClient()) { 					
 					// Get a stream object for reading 					
 					using (NetworkStream stream = connectedTcpClient.GetStream()) { 						
@@ -127,6 +146,7 @@ public class TCPRobotServer : MonoBehaviour {
 		str += roboController.getBackDist() + " ";
 		str += roboController.getLeftDist() + " ";
 		str += roboController.getRightDist() + " ";
+		str += (turnedOn ? 1 : 0) + " ";
 		sendMessage(str);
 
 	}
@@ -169,6 +189,10 @@ public class TCPRobotServer : MonoBehaviour {
 				break;
 			case "setTurnVel":
 				roboController.setTurnVel(float.Parse(args[2]));
+				break;
+			case "kill":
+				tcpListener.Stop();
+				readyToKill = true;
 				break;
 			default:
 				break;

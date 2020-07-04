@@ -1,6 +1,8 @@
 import socket
 import time
 import threading
+import os
+import sys
 SERVER = "127.0.0.1"
 PORT = 8052
 
@@ -22,6 +24,7 @@ class Robot:
         self.leftDist = 0
         self.rightDist = 0
         self.connected = True 
+        self.turnedOn = True
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client.connect((SERVER, PORT))
         self.t1 = threading.Thread(target=self.inundate)
@@ -47,6 +50,13 @@ class Robot:
                 self.backDist = float(dataParts[13])
                 self.leftDist = float(dataParts[14])
                 self.rightDist = float(dataParts[15])
+                self.turnedOn = True if int(dataParts[16]) == 1 else False
+                if(not self.turnedOn):
+                    print("bunk")
+                    self.sendKill()
+                    self.connected = False
+                    self.t1.join()
+                    sys.exit(0)
                 time.sleep(0.01)
         except:
             print("Disconnected")
@@ -80,6 +90,11 @@ class Robot:
 
     def setTurnVel(self, val):
         string = "robocommand setTurnVel " + str(val)+"|"
+        self.client.sendall(bytes(string,'UTF-8'))
+        time.sleep(0.001)
+
+    def sendKill(self):
+        string = "robocommand kill 0|"
         self.client.sendall(bytes(string,'UTF-8'))
         time.sleep(0.001)
 
@@ -127,27 +142,31 @@ class Robot:
         self.client.close()
         self.connected = False
 
+    def wait(self):
+        if(not self.turnedOn):
+            sys.exit(0)
+
 robot = Robot()
 while(not robot.connected):
-    None
+    robot.wait()
 robot.setTurnVel(0.5)
 while(robot.getGyroAngle()<90):
-    None
+    robot.wait()
 robot.setTurnVel(0)
 time.sleep(0.2)
 robot.setForwardVel(0.5)
 while(robot.getLeftDist()<10):
-    None
+    robot.wait()
 time.sleep(0.5)
 robot.setForwardVel(0)
 robot.setTurnVel(-0.2)
 while(robot.getGyroAngle()>3 or (robot.getGyroAngle()<357 and robot.getGyroAngle()>180)):
-    print(robot.getGyroAngle())
-    None
+    #print(robot.getGyroAngle())
+    robot.wait()
 robot.setTurnVel(0)
 robot.setForwardVel(0.5)
 while(robot.getForwardDist()>10):
-    None
+    robot.wait()
 robot.setForwardVel(0)
 robot.stop()
 

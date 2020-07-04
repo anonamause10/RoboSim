@@ -121,6 +121,9 @@ public class CameraMovement : MonoBehaviour {
 		zoomedOutPos += Mathf.Max(terrain.terrainData.size.x,terrain.terrainData.size.z)/5*delVec*Time.deltaTime;
 		zoomedOutPos += -1*Vector3.up*Input.GetAxis("Mouse ScrollWheel")*20;
 		realCursorPos += new Vector3(Input.GetAxis("Mouse X"),0,Input.GetAxis("Mouse Y"));
+		if((int)realCursorPos.x<1||(int)realCursorPos.x>terrain.terrainData.size.x-1||(int)realCursorPos.z<1||(int)realCursorPos.z>terrain.terrainData.size.z-1){
+			realCursorPos -= new Vector3(Input.GetAxis("Mouse X"),0,Input.GetAxis("Mouse Y"));
+		}
 		if(intedVector(realCursorPos)!=intedVector(cursor.transform.position)){
 			cursor.transform.position = intedVector(realCursorPos)+Vector3.up*0.5f*cursor.transform.localScale.y;
 		}
