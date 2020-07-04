@@ -141,7 +141,8 @@ while(robot.getLeftDist()<10):
 time.sleep(0.5)
 robot.setForwardVel(0)
 robot.setTurnVel(-0.2)
-while(robot.getGyroAngle()>3 or robot.getGyroAngle()<357):
+while(robot.getGyroAngle()>3 or (robot.getGyroAngle()<357 and robot.getGyroAngle()>180)):
+    print(robot.getGyroAngle())
     None
 robot.setTurnVel(0)
 robot.setForwardVel(0.5)
