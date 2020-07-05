@@ -52,7 +52,6 @@ class Robot:
                 self.rightDist = float(dataParts[15])
                 self.turnedOn = True if int(dataParts[16]) == 1 else False
                 if(not self.turnedOn):
-                    print("bunk")
                     self.sendKill()
                     self.connected = False
                     self.t1.join()
@@ -139,6 +138,7 @@ class Robot:
         return self.rightDist
 
     def stop(self):
+        self.sendKill()
         self.client.close()
         self.connected = False
 

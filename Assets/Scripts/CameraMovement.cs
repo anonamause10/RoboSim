@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System;
 using System.Collections;
 
@@ -30,6 +31,8 @@ public class CameraMovement : MonoBehaviour {
 	private Vector3 realCursorPos;
 
 	public GameObject[] spawnObjects;
+	public bool mouseOverButton = false;
+	public Button modifyFieldButton;
 	
 	private bool zoom; // true is normal, false is for viewing full thing
 
@@ -44,27 +47,11 @@ public class CameraMovement : MonoBehaviour {
 		prevZoomOutPos = zoomedOutPos;
 		blocksArray = new int[((int)terrain.terrainData.size.x-1),((int)terrain.terrainData.size.z-1)];
 		blocksArray = fillArray(blocksArray,-1);
+		mouseOverButton = false;
 	}
 	
 	void LateUpdate ()
 	{
-		if(Input.GetKeyDown(KeyCode.Space)&&!transitioning){
-			zoom = !zoom;
-			transitioning = true;
-			if(!zoom){
-				cursor = Instantiate(spawnObjects[0],new Vector3(terrain.terrainData.size.x/2,0.5f,terrain.terrainData.size.z/2),Quaternion.identity);
-				Color col = cursor.GetComponent<Renderer>().material.color;
-				col.a = 0.5f;
-				cursor.GetComponent<Renderer>().material.color = col;
-				cursor.GetComponent<Rigidbody>().isKinematic = false;
-				cursor.GetComponent<Rigidbody>().useGravity = false;
-				cursor.GetComponent<Collider>().isTrigger = true;
-				realCursorPos = cursor.transform.position;
-			}else{
-				prevZoomOutPos = transform.position;
-				Destroy(cursor);
-			}
-		}
 		if(transitioning){
 			transition();
 			return;
@@ -103,8 +90,8 @@ public class CameraMovement : MonoBehaviour {
 			zoomedOutPos = prevZoomOutPos;
 			zoomRot = new Vector3(90,0,0);
 		}
-		transform.position = Vector3.SmoothDamp(transform.position, zoomedOutPos, ref zoomPosDamp, 0.5f);
-		transform.eulerAngles = Vector3.SmoothDamp(transform.eulerAngles, zoomRot, ref zoomRotDamp, 0.5f);
+		transform.position = Vector3.SmoothDamp(transform.position, zoomedOutPos, ref zoomPosDamp, 0.3f);
+		transform.eulerAngles = Vector3.SmoothDamp(transform.eulerAngles, zoomRot, ref zoomRotDamp, 0.3f);
 		if((transform.position - zoomedOutPos).magnitude<0.004f){
 			transitioning = false;
 			if(zoom){
@@ -120,6 +107,9 @@ public class CameraMovement : MonoBehaviour {
 		Vector3 delVec = new Vector3(Input.GetAxis("Horizontal"),0,Input.GetAxis("Vertical"));
 		zoomedOutPos += Mathf.Max(terrain.terrainData.size.x,terrain.terrainData.size.z)/5*delVec*Time.deltaTime;
 		zoomedOutPos += -1*Vector3.up*Input.GetAxis("Mouse ScrollWheel")*20;
+		if(zoomedOutPos.y<0.5f){
+			zoomedOutPos += 1*Vector3.up*Input.GetAxis("Mouse ScrollWheel")*20;
+		}
 		realCursorPos += new Vector3(Input.GetAxis("Mouse X"),0,Input.GetAxis("Mouse Y"));
 		if((int)realCursorPos.x<1||(int)realCursorPos.x>terrain.terrainData.size.x-1||(int)realCursorPos.z<1||(int)realCursorPos.z>terrain.terrainData.size.z-1){
 			realCursorPos -= new Vector3(Input.GetAxis("Mouse X"),0,Input.GetAxis("Mouse Y"));
@@ -127,7 +117,7 @@ public class CameraMovement : MonoBehaviour {
 		if(intedVector(realCursorPos)!=intedVector(cursor.transform.position)){
 			cursor.transform.position = intedVector(realCursorPos)+Vector3.up*0.5f*cursor.transform.localScale.y;
 		}
-		if(Input.GetMouseButton(0)){
+		if(Input.GetMouseButton(0)&&!mouseOverButton){
 			if(blocksArray[(int)cursor.transform.position.x,(int)cursor.transform.position.z]==-1){
 				blocksArray[(int)cursor.transform.position.x,(int)cursor.transform.position.z] = 0;
 				Instantiate(spawnObjects[0],cursor.transform.position,Quaternion.identity);
@@ -149,6 +139,45 @@ public class CameraMovement : MonoBehaviour {
 			}
 		}
 		return temp;
+	}
+
+	public void clearBlocks(){
+		GameObject[] obstacles;
+ 
+ 		obstacles = GameObject.FindGameObjectsWithTag("Obstacle");
+		for (int i = 0; i < obstacles.Length; i++)
+		{
+			Destroy(obstacles[i]);
+		}
+	}
+
+	public void switchCamPos(){
+		zoom = !zoom;
+		transitioning = true;
+		if(!zoom){
+			cursor = Instantiate(spawnObjects[0],new Vector3(terrain.terrainData.size.x/2,0.5f,terrain.terrainData.size.z/2),Quaternion.identity);
+			Color col = cursor.GetComponent<Renderer>().material.color;
+			col.a = 0.5f;
+			cursor.GetComponent<Renderer>().material.color = col;
+			cursor.GetComponent<Rigidbody>().isKinematic = false;
+			cursor.GetComponent<Rigidbody>().useGravity = false;
+			cursor.GetComponent<Collider>().isTrigger = true;
+			cursor.tag = "Cursor";
+			realCursorPos = cursor.transform.position;
+			modifyFieldButton.transform.Find("Text").gameObject.GetComponent<Text>().text = "Back to robot";
+		}else{
+			prevZoomOutPos = transform.position;
+			Destroy(cursor);
+			modifyFieldButton.transform.Find("Text").gameObject.GetComponent<Text>().text = "Place Obstacles";
+		}
+	}
+
+	public void setMouseOverTrue(){
+		mouseOverButton = true;
+	}
+
+	public void setMouseOverFalse(){
+		mouseOverButton = false;
 	}
 
 

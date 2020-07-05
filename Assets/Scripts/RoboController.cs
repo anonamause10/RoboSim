@@ -29,6 +29,7 @@ public class RoboController : MonoBehaviour
     private RaycastHit rightCast;
 
     private TCPRobotServer server;
+    private Terrain terrain;
 
 
     void Start()
@@ -40,6 +41,7 @@ public class RoboController : MonoBehaviour
         distSensorT = transform.Find("Body").Find("DistanceSensor");
         gyroAngle = transform.eulerAngles.y;
         server = GetComponent<TCPRobotServer>();
+        terrain = GameObject.Find("Floor").GetComponent<Terrain>();
     }
 
     // Update is called once per frame
@@ -47,8 +49,12 @@ public class RoboController : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.Y)){
             
-            if(server.turnedOn){
-                server.kill();
+            if(server!=null){
+                if(server.turnedOn){
+                    server.kill();
+                }else{
+                    server = gameObject.AddComponent<TCPRobotServer>() as TCPRobotServer;
+                }
             }else{
                 server = gameObject.AddComponent<TCPRobotServer>() as TCPRobotServer;
             }
@@ -68,6 +74,11 @@ public class RoboController : MonoBehaviour
         Physics.Raycast(distSensorT.position, -transform.right, out leftCast);
         Physics.Raycast(distSensorT.position, transform.right, out rightCast);
         gyroAngle = transform.eulerAngles.y;
+    }
+
+    public void setToOrigPos(){
+        transform.position = new Vector3(25,0.65f,20);
+        transform.eulerAngles = Vector3.zero;
     }
 
     public float getMaxForwardVel()
