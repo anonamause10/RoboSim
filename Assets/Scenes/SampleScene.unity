@@ -1793,6 +1793,7 @@ MonoBehaviour:
   spawnObjects:
   - {fileID: 4533933468189672453, guid: 41d999c8f716db84caee1fe26cb7956d, type: 3}
   mouseOverButton: 0
+  clickedToCursorMode: 0
   modifyFieldButton: {fileID: 897791373}
 --- !u!1 &966987903
 GameObject:
@@ -2169,7 +2170,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   startPos: {x: 0, y: 0, z: 0}
-  endPos: {x: 100, y: 250, z: 0}
+  endPos: {x: 100, y: 300, z: 0}
+  startString: Show Controls
+  endString: Hide Controls
+  buttonText: {fileID: 310582029}
 --- !u!1 &1075048164
 GameObject:
   m_ObjectHideFlags: 0
@@ -3112,7 +3116,8 @@ MonoBehaviour:
     m_LineSpacing: 1.5
   m_Text: "Robot Controls (Must have Toggle Telecontrol Checked)\n\tWASD/Arrow keys
     - move robot\n\tJ - turn left\n\tL - turn right\nObstacle Placement Controls\n\tScroll
-    - Zoom in/out\n\tArrow Keys/WASD - Pan Camera\n\tClick - Place block"
+    - Zoom in/out\n\tArrow Keys/WASD - Pan Camera\n\tClick - Place block\nEscape
+    - Reveal Mouse\nClick Anywhere - Hide Mouse "
 --- !u!222 &1549902295
 CanvasRenderer:
   m_ObjectHideFlags: 0

@@ -47,21 +47,15 @@ public class RoboController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Y)){
-            
-            if(server!=null){
-                if(server.turnedOn){
-                    server.kill();
-                }else{
-                    server = gameObject.AddComponent<TCPRobotServer>() as TCPRobotServer;
-                }
-            }else{
-                server = gameObject.AddComponent<TCPRobotServer>() as TCPRobotServer;
+           
+        if(server!=null){
+            if(server.turnedOn){
+                server.kill();
             }
-            
-            print("server booped");
+        }else{
+            server = gameObject.AddComponent<TCPRobotServer>() as TCPRobotServer;
         }
-
+            
         velVec.Set(sideVel, 0, forwardVel);
         actualVelVec = Vector3.SmoothDamp(actualVelVec,velVec, ref velDampVec, 0.1f);
         actualTurnVel = Mathf.SmoothDamp(actualTurnVel, turnVel, ref turnDampVel, 0.1f);

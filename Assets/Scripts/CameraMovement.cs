@@ -32,6 +32,7 @@ public class CameraMovement : MonoBehaviour {
 
 	public GameObject[] spawnObjects;
 	public bool mouseOverButton = false;
+	public bool clickedToCursorMode = false;
 	public Button modifyFieldButton;
 	
 	private bool zoom; // true is normal, false is for viewing full thing
@@ -48,6 +49,8 @@ public class CameraMovement : MonoBehaviour {
 		blocksArray = new int[((int)terrain.terrainData.size.x-1),((int)terrain.terrainData.size.z-1)];
 		blocksArray = fillArray(blocksArray,-1);
 		mouseOverButton = false;
+		Cursor.lockState = CursorLockMode.Locked;
+		clickedToCursorMode = false;
 	}
 	
 	void LateUpdate ()
@@ -61,11 +64,20 @@ public class CameraMovement : MonoBehaviour {
 		}else{
 			zoomOutCam();
 		}
+		if(Input.GetKeyDown(KeyCode.Escape)){
+			Cursor.lockState = CursorLockMode.None;
+		}
+		if(Input.GetMouseButtonDown(0)&&!mouseOverButton){
+			Cursor.lockState = CursorLockMode.Locked;
+		}
 
 	}
 
 	void Move(){
 	    // get the mouse inputs
+		if(Cursor.lockState == CursorLockMode.None){
+			return;
+		}
 	    y = Input.GetAxis("Mouse X") * turnSpeed;
 	    rotX += Input.GetAxis("Mouse Y") * turnSpeed;
 	
@@ -90,8 +102,8 @@ public class CameraMovement : MonoBehaviour {
 			zoomedOutPos = prevZoomOutPos;
 			zoomRot = new Vector3(90,0,0);
 		}
-		transform.position = Vector3.SmoothDamp(transform.position, zoomedOutPos, ref zoomPosDamp, 0.3f);
-		transform.eulerAngles = Vector3.SmoothDamp(transform.eulerAngles, zoomRot, ref zoomRotDamp, 0.3f);
+		transform.position = Vector3.SmoothDamp(transform.position, zoomedOutPos, ref zoomPosDamp, 0.25f);
+		transform.eulerAngles = Vector3.SmoothDamp(transform.eulerAngles, zoomRot, ref zoomRotDamp, 0.25f);
 		if((transform.position - zoomedOutPos).magnitude<0.004f){
 			transitioning = false;
 			if(zoom){
@@ -110,18 +122,28 @@ public class CameraMovement : MonoBehaviour {
 		if(zoomedOutPos.y<0.5f){
 			zoomedOutPos += 1*Vector3.up*Input.GetAxis("Mouse ScrollWheel")*20;
 		}
-		realCursorPos += new Vector3(Input.GetAxis("Mouse X"),0,Input.GetAxis("Mouse Y"));
-		if((int)realCursorPos.x<1||(int)realCursorPos.x>terrain.terrainData.size.x-1||(int)realCursorPos.z<1||(int)realCursorPos.z>terrain.terrainData.size.z-1){
-			realCursorPos -= new Vector3(Input.GetAxis("Mouse X"),0,Input.GetAxis("Mouse Y"));
-		}
 		if(intedVector(realCursorPos)!=intedVector(cursor.transform.position)){
 			cursor.transform.position = intedVector(realCursorPos)+Vector3.up*0.5f*cursor.transform.localScale.y;
 		}
-		if(Input.GetMouseButton(0)&&!mouseOverButton){
+		if(Input.GetMouseButtonDown(0)&&(Cursor.lockState == CursorLockMode.None)){
+			clickedToCursorMode = true;
+			print("badoonk");
+		}
+		if(Input.GetMouseButtonUp(0)&&(Cursor.lockState == CursorLockMode.Locked)){
+			clickedToCursorMode = false;
+		}
+		if(Input.GetMouseButton(0)&&!mouseOverButton&&!clickedToCursorMode){
 			if(blocksArray[(int)cursor.transform.position.x,(int)cursor.transform.position.z]==-1){
 				blocksArray[(int)cursor.transform.position.x,(int)cursor.transform.position.z] = 0;
 				Instantiate(spawnObjects[0],cursor.transform.position,Quaternion.identity);
 			}
+		}
+		if(Cursor.lockState == CursorLockMode.None){
+			return;
+		}
+		realCursorPos += new Vector3(Input.GetAxis("Mouse X"),0,Input.GetAxis("Mouse Y"));
+		if((int)realCursorPos.x<1||(int)realCursorPos.x>terrain.terrainData.size.x-1||(int)realCursorPos.z<1||(int)realCursorPos.z>terrain.terrainData.size.z-1){
+			realCursorPos -= new Vector3(Input.GetAxis("Mouse X"),0,Input.GetAxis("Mouse Y"));
 		}
 	}
 
@@ -165,6 +187,7 @@ public class CameraMovement : MonoBehaviour {
 			cursor.tag = "Cursor";
 			realCursorPos = cursor.transform.position;
 			modifyFieldButton.transform.Find("Text").gameObject.GetComponent<Text>().text = "Back to robot";
+			Cursor.lockState = CursorLockMode.Locked;
 		}else{
 			prevZoomOutPos = transform.position;
 			Destroy(cursor);
