@@ -12,10 +12,10 @@ public class CameraMovement : MonoBehaviour {
 	private float targetDistance;
 	float targetDistanceInitial;
 	float speedSmoothVelocity = 1f;
-	private Vector3 zoomedOutPos;
+	public Vector3 zoomedOutPos;
 	private Vector3 zoomPosDamp = Vector3.zero;
 	private Vector3 prevZoomOutPos;
-	private Vector3 zoomRot;
+	public Vector3 zoomRot;
 	private Vector3 zoomRotDamp = Vector3.zero;
 	private bool transitioning = false;
 	private Terrain terrain;
@@ -34,8 +34,16 @@ public class CameraMovement : MonoBehaviour {
 	public bool mouseOverButton = false;
 	public bool clickedToCursorMode = false;
 	public Button modifyFieldButton;
+	public Dropdown cameraModeChooser;
 	
 	public bool zoom; // true is normal, false is for viewing full thing
+
+	public enum CameraMode
+	{
+		FirstPerson, Free, LockToRobotForward, ZoomedOut, TopDown
+	}
+
+	public CameraMode camMode = CameraMode.Free;
 
 	void Start ()
 	{
@@ -46,21 +54,24 @@ public class CameraMovement : MonoBehaviour {
 		terrain = GameObject.Find("Floor").GetComponent<Terrain>();
 		zoomedOutPos = new Vector3(terrain.terrainData.size.x/2,Mathf.Max(terrain.terrainData.size.x,terrain.terrainData.size.z),terrain.terrainData.size.z/2);
 		prevZoomOutPos = zoomedOutPos;
-		blocksArray = new int[((int)terrain.terrainData.size.x-1),((int)terrain.terrainData.size.z-1)];
+		blocksArray = new int[((int)terrain.terrainData.size.x),((int)terrain.terrainData.size.z)];
 		blocksArray = fillArray(blocksArray,-1);
 		mouseOverButton = false;
 		Cursor.lockState = CursorLockMode.None;
 		Cursor.visible = true;
 		clickedToCursorMode = false;
+		camMode = CameraMode.Free;
 	}
 	
 	void LateUpdate ()
 	{
+		transform.eulerAngles = modEulers(transform.eulerAngles);
+		//zoomRot = modEulers(zoomRot);
 		if(transitioning){
 			transition();
 			return;
 		}
-		if(zoom){
+		if(zoom&&camMode!=CameraMode.ZoomedOut){
 			Move();
 		}else{
 			zoomOutCam();
@@ -79,7 +90,28 @@ public class CameraMovement : MonoBehaviour {
 	void Move(){
 	    // get the mouse inputs
 		if(Cursor.lockState == CursorLockMode.None){
-			transform.position = (target.transform.position) - (transform.forward * targetDistance);
+			switch (camMode)
+			{
+				case CameraMode.FirstPerson:
+					transform.eulerAngles = target.transform.eulerAngles;
+					transform.position = target.transform.position+target.transform.forward;
+					break;
+				case CameraMode.Free:
+					transform.position = (target.transform.position) - (transform.forward * targetDistance);
+					break;
+				case CameraMode.LockToRobotForward:
+					transform.position = (target.transform.position) - (transform.forward * targetDistance);
+					break;
+				case CameraMode.ZoomedOut:
+					break;
+				case CameraMode.TopDown:
+					transform.position = target.transform.position + Vector3.up*5;
+					transform.eulerAngles = new Vector3(90,0,0);
+					break;
+				default:
+					transform.position = (target.transform.position) - (transform.forward * targetDistance);
+					break;
+			}
 
 			return;
 		}
@@ -90,28 +122,68 @@ public class CameraMovement : MonoBehaviour {
 	    rotX = Mathf.Clamp(rotX, minTurnAngle, maxTurnAngle);
 		targetDistance = Mathf.SmoothDamp (targetDistance, targetDistanceInitial, ref speedSmoothVelocity, 0.1f);
 	
-	    // rotate the camera
-	    transform.eulerAngles = new Vector3(-rotX, transform.eulerAngles.y + y, 0);
-	
-	    // move the camera position
-		transform.position = (target.transform.position) - (transform.forward * targetDistance);
+	    switch (camMode)
+		{
+			case CameraMode.FirstPerson:
+				transform.eulerAngles = target.transform.eulerAngles;
+				transform.position = target.transform.position+target.transform.forward;
+				break;
+			case CameraMode.Free:
+				transform.eulerAngles = new Vector3(-rotX, transform.eulerAngles.y + y, 0);
+				transform.position = (target.transform.position) - (transform.forward * targetDistance);
+				break;
+			case CameraMode.LockToRobotForward:
+				transform.eulerAngles = new Vector3(-rotX, target.transform.eulerAngles.y, 0);
+				transform.position = (target.transform.position) - (transform.forward * targetDistance);
+				break;
+			case CameraMode.ZoomedOut:
+				break;
+			case CameraMode.TopDown:
+				transform.position = target.transform.position + Vector3.up*5;
+				transform.eulerAngles = new Vector3(90,0,0);
+				break;
+			default:
+				transform.eulerAngles = new Vector3(-rotX, transform.eulerAngles.y + y, 0);
+				transform.position = (target.transform.position) - (transform.forward * targetDistance);
+				break;
+		}
 
 	}
 
 	void transition(){
 		transitioning = true;
-		if(zoom){
-			zoomedOutPos = target.transform.position+(Vector3.forward*targetDistanceInitial);
-			zoomRot = new Vector3(0,180,0);
-		}else{
-			zoomedOutPos = prevZoomOutPos;
-			zoomRot = new Vector3(90,0,0);
+		switch (camMode)
+		{
+			case CameraMode.FirstPerson:
+				zoomRot = target.transform.eulerAngles;
+				zoomedOutPos = target.transform.position+target.transform.forward;
+				break;
+			case CameraMode.Free:
+				zoomedOutPos = target.transform.position+(Vector3.forward*targetDistanceInitial);
+				zoomRot = new Vector3(0,180,0);
+				break;
+			case CameraMode.LockToRobotForward:
+				zoomRot = target.transform.eulerAngles;
+				zoomedOutPos = target.transform.position-target.transform.forward*targetDistanceInitial;
+				break;
+			case CameraMode.ZoomedOut:
+				zoomedOutPos = prevZoomOutPos;
+				zoomRot = new Vector3(90,0,0);
+				break;
+			case CameraMode.TopDown:
+				zoomedOutPos = target.transform.position + Vector3.up*5;
+				zoomRot = new Vector3(90,0,0);
+				break;
+			default:
+				zoomedOutPos = target.transform.position+(Vector3.forward*targetDistanceInitial);
+				zoomRot = new Vector3(0,180,0);
+				break;
 		}
-		transform.position = Vector3.SmoothDamp(transform.position, zoomedOutPos, ref zoomPosDamp, 0.25f);
-		transform.eulerAngles = Vector3.SmoothDamp(transform.eulerAngles, zoomRot, ref zoomRotDamp, 0.25f);
+		transform.position = Vector3.SmoothDamp(transform.position, zoomedOutPos, ref zoomPosDamp, 0.3f);
+		transform.eulerAngles = Vector3.SmoothDamp(transform.eulerAngles, zoomRot, ref zoomRotDamp, 0.3f);
 		if((transform.position - zoomedOutPos).magnitude<0.004f){
 			transitioning = false;
-			if(zoom){
+			if(camMode == CameraMode.Free||camMode == CameraMode.LockToRobotForward){
 				rotX = 0;
 				y = 0;
 			}
@@ -127,22 +199,16 @@ public class CameraMovement : MonoBehaviour {
 		zoomedOutPos += Vector3.up*(Input.GetKey(KeyCode.Q)?-1:(Input.GetKey(KeyCode.E)?1:0))*20*Time.deltaTime;
 		if(zoomedOutPos.y<0.5f){
 			zoomedOutPos += 1*Vector3.up*Input.GetAxis("Mouse ScrollWheel")*20;
+			zoomedOutPos -= Vector3.up*(Input.GetKey(KeyCode.Q)?-1:(Input.GetKey(KeyCode.E)?1:0))*20*Time.deltaTime;
 		}
 		if(intedVector(realCursorPos)!=intedVector(cursor.transform.position)){
 			cursor.transform.position = intedVector(realCursorPos)+Vector3.up*0.5f*cursor.transform.localScale.y;
 		}
 		if(Input.GetMouseButtonDown(0)&&(Cursor.lockState == CursorLockMode.None)){
 			clickedToCursorMode = true;
-			print("badoonk");
 		}
 		if(Input.GetMouseButtonUp(0)&&(Cursor.lockState == CursorLockMode.Locked)){
 			clickedToCursorMode = false;
-		}
-		if(Input.GetMouseButton(0)&&!mouseOverButton&&!clickedToCursorMode){
-			if(blocksArray[(int)cursor.transform.position.x,(int)cursor.transform.position.z]==-1){
-				blocksArray[(int)cursor.transform.position.x,(int)cursor.transform.position.z] = 0;
-				Instantiate(spawnObjects[0],cursor.transform.position,Quaternion.identity);
-			}
 		}
 		if(Cursor.lockState == CursorLockMode.None){
 			return;
@@ -150,6 +216,12 @@ public class CameraMovement : MonoBehaviour {
 		realCursorPos += new Vector3(Input.GetAxis("Mouse X"),0,Input.GetAxis("Mouse Y"));
 		if((int)realCursorPos.x<1||(int)realCursorPos.x>terrain.terrainData.size.x-1||(int)realCursorPos.z<1||(int)realCursorPos.z>terrain.terrainData.size.z-1){
 			realCursorPos -= new Vector3(Input.GetAxis("Mouse X"),0,Input.GetAxis("Mouse Y"));
+		}
+		if(Input.GetMouseButton(0)&&!mouseOverButton&&!clickedToCursorMode){
+			if(blocksArray[(int)cursor.transform.position.x,(int)cursor.transform.position.z]==-1){
+				blocksArray[(int)cursor.transform.position.x,(int)cursor.transform.position.z] = 0;
+				Instantiate(spawnObjects[0],cursor.transform.position,Quaternion.identity);
+			}
 		}
 	}
 
@@ -195,11 +267,66 @@ public class CameraMovement : MonoBehaviour {
 			modifyFieldButton.transform.Find("Text").gameObject.GetComponent<Text>().text = "Back to robot";
 			Cursor.lockState = CursorLockMode.Locked;
 			Cursor.visible = false;
+			camMode = CameraMode.ZoomedOut;
 		}else{
 			prevZoomOutPos = transform.position;
 			Destroy(cursor);
 			modifyFieldButton.transform.Find("Text").gameObject.GetComponent<Text>().text = "Place Obstacles";
+			setCameraMode(0);
 		}
+	}
+
+	public void setCameraMode(string mode){
+		transitioning = true;
+		CameraMode cameraMode = CameraMode.Free;
+		switch (mode)
+		{
+			case "Free":
+				cameraMode = CameraMode.Free;
+				break;
+			case "FirstPerson":
+				cameraMode = CameraMode.FirstPerson;
+				break;
+			case "LockToRobotForward":
+				cameraMode = CameraMode.LockToRobotForward;
+				break;
+			case "ZoomedOut":
+				cameraMode = CameraMode.ZoomedOut;
+				break;
+			case "TopDown":
+				cameraMode = CameraMode.TopDown;
+				break;
+			default:
+				break;
+		}
+		camMode = cameraMode;
+	}
+
+	public void setCameraMode(int mode){
+		if(!zoom){
+			return;
+		}
+		transitioning = true;
+		mode = cameraModeChooser.value;
+		CameraMode cameraMode = camMode;
+		switch (mode)
+		{
+			case 0:
+				cameraMode = CameraMode.Free;
+				break;
+			case 2:
+				cameraMode = CameraMode.FirstPerson;
+				break;
+			case 1:
+				cameraMode = CameraMode.LockToRobotForward;
+				break;
+			case 3:
+				cameraMode = CameraMode.TopDown;
+				break;
+			default:
+				break;
+		}
+		camMode = cameraMode;
 	}
 
 	public void setMouseOverTrue(){
@@ -208,6 +335,10 @@ public class CameraMovement : MonoBehaviour {
 
 	public void setMouseOverFalse(){
 		mouseOverButton = false;
+	}
+
+	public static Vector3 modEulers(Vector3 v){
+		return new Vector3(v.x%360,v.y%360,v.z%360);
 	}
 
 

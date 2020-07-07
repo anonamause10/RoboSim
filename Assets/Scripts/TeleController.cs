@@ -31,8 +31,8 @@ public class TeleController : MonoBehaviour
             return;
         }
 
-        robot.setTurnVel((Input.GetKey(KeyCode.Q)?-1:(Input.GetKey(KeyCode.E)?1:0)));
-        robot.setSideVel(Input.GetAxis("Horizontal"));
+        //robot.setTurnVel((Input.GetKey(KeyCode.Q)?-1:(Input.GetKey(KeyCode.E)?1:0)));
+        robot.setTurnVel(Input.GetAxis("Horizontal"));
         robot.setForwardVel(Input.GetAxis("Vertical"));
         
         //print(robot.getForwardDist());
