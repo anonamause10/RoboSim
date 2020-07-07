@@ -8,22 +8,30 @@ public class TeleController : MonoBehaviour
     // Start is called before the first frame update
     public RoboController robot;
     public bool controlLock = false;
+    private CameraMovement camScript;
 
     void Start()
     {
         robot  = GameObject.Find("Robot").GetComponent<RoboController>();
         controlLock = false;
+        camScript = GameObject.Find("Main Camera").GetComponent<CameraMovement>();
     }
 
     // Update is called once per frame
     void Update()
     {
 
+        if(!camScript.zoom||robot.isOnSide()){
+            controlLock = true;
+        }else{
+            controlLock = false;
+        }
+
         if(controlLock){
             return;
         }
 
-        robot.setTurnVel((Input.GetKey(KeyCode.J)?-1:(Input.GetKey(KeyCode.L)?1:0)));
+        robot.setTurnVel((Input.GetKey(KeyCode.Q)?-1:(Input.GetKey(KeyCode.E)?1:0)));
         robot.setSideVel(Input.GetAxis("Horizontal"));
         robot.setForwardVel(Input.GetAxis("Vertical"));
         

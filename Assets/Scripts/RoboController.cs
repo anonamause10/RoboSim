@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class RoboController : MonoBehaviour
 {
@@ -30,7 +31,7 @@ public class RoboController : MonoBehaviour
 
     private TCPRobotServer server;
     private Terrain terrain;
-
+    public ErrorMessage errorMessage;
 
     void Start()
     {
@@ -47,12 +48,7 @@ public class RoboController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-           
-        if(server!=null){
-            if(server.turnedOn){
-                server.kill();
-            }
-        }else{
+        if(server == null){
             server = gameObject.AddComponent<TCPRobotServer>() as TCPRobotServer;
         }
             
@@ -70,8 +66,26 @@ public class RoboController : MonoBehaviour
         gyroAngle = transform.eulerAngles.y;
     }
 
+    public bool isOnSide(){
+        return Mathf.Abs(Vector3.Angle(transform.up,Vector3.up))>90;
+    }
+
+    public void startClientScript(){
+        if(server!=null){
+            server.startScript();
+        }else{
+            errorMessage.setDisplayText("Server is broken");
+        }
+    }
+
+    public void killServer(){
+        if(server!=null&&server.hasClient()){
+            server.kill();   
+        }
+    }
+
     public void setToOrigPos(){
-        transform.position = new Vector3(25,0.65f,20);
+        transform.position = new Vector3(25,1.65f,20);
         transform.eulerAngles = Vector3.zero;
     }
 

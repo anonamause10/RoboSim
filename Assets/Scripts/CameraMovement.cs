@@ -35,7 +35,7 @@ public class CameraMovement : MonoBehaviour {
 	public bool clickedToCursorMode = false;
 	public Button modifyFieldButton;
 	
-	private bool zoom; // true is normal, false is for viewing full thing
+	public bool zoom; // true is normal, false is for viewing full thing
 
 	void Start ()
 	{
@@ -49,7 +49,8 @@ public class CameraMovement : MonoBehaviour {
 		blocksArray = new int[((int)terrain.terrainData.size.x-1),((int)terrain.terrainData.size.z-1)];
 		blocksArray = fillArray(blocksArray,-1);
 		mouseOverButton = false;
-		Cursor.lockState = CursorLockMode.Locked;
+		Cursor.lockState = CursorLockMode.None;
+		Cursor.visible = true;
 		clickedToCursorMode = false;
 	}
 	
@@ -66,9 +67,11 @@ public class CameraMovement : MonoBehaviour {
 		}
 		if(Input.GetKeyDown(KeyCode.Escape)){
 			Cursor.lockState = CursorLockMode.None;
+			Cursor.visible = true;
 		}
 		if(Input.GetMouseButtonDown(0)&&!mouseOverButton){
 			Cursor.lockState = CursorLockMode.Locked;
+			Cursor.visible = false;
 		}
 
 	}
@@ -76,6 +79,8 @@ public class CameraMovement : MonoBehaviour {
 	void Move(){
 	    // get the mouse inputs
 		if(Cursor.lockState == CursorLockMode.None){
+			transform.position = (target.transform.position) - (transform.forward * targetDistance);
+
 			return;
 		}
 	    y = Input.GetAxis("Mouse X") * turnSpeed;
@@ -119,6 +124,7 @@ public class CameraMovement : MonoBehaviour {
 		Vector3 delVec = new Vector3(Input.GetAxis("Horizontal"),0,Input.GetAxis("Vertical"));
 		zoomedOutPos += Mathf.Max(terrain.terrainData.size.x,terrain.terrainData.size.z)/5*delVec*Time.deltaTime;
 		zoomedOutPos += -1*Vector3.up*Input.GetAxis("Mouse ScrollWheel")*20;
+		zoomedOutPos += Vector3.up*(Input.GetKey(KeyCode.Q)?-1:(Input.GetKey(KeyCode.E)?1:0))*20*Time.deltaTime;
 		if(zoomedOutPos.y<0.5f){
 			zoomedOutPos += 1*Vector3.up*Input.GetAxis("Mouse ScrollWheel")*20;
 		}
@@ -188,6 +194,7 @@ public class CameraMovement : MonoBehaviour {
 			realCursorPos = cursor.transform.position;
 			modifyFieldButton.transform.Find("Text").gameObject.GetComponent<Text>().text = "Back to robot";
 			Cursor.lockState = CursorLockMode.Locked;
+			Cursor.visible = false;
 		}else{
 			prevZoomOutPos = transform.position;
 			Destroy(cursor);

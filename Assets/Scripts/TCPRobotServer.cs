@@ -9,6 +9,7 @@ using System.Net.Sockets;
 using System.Text; 
 using System.Threading; 
 using UnityEngine;  
+using UnityEngine.UI;
 
 public class TCPRobotServer : MonoBehaviour {  	
 	#region private members 	
@@ -32,6 +33,9 @@ public class TCPRobotServer : MonoBehaviour {
 
 	public bool turnedOn = true;
 	public bool readyToKill = false;
+	public bool started = false;
+	public Text serverText;
+	public ErrorMessage errorMessage;
 	#endregion 	
 		
 	// Use this for initialization
@@ -43,6 +47,12 @@ public class TCPRobotServer : MonoBehaviour {
         roboController = GetComponent<RoboController>();
 		turnedOn = true;
 		readyToKill = false;
+		started = false;
+		errorMessage = roboController.errorMessage;
+	}
+
+	public bool hasClient(){
+		return connectedTcpClient!=null;
 	}
 
 	public void kill(){
@@ -62,7 +72,15 @@ public class TCPRobotServer : MonoBehaviour {
 		if(readyToKill){
 			Destroy(this);
 		}
-	}  	
+	}
+
+	public void startScript(){
+		if(hasClient()){
+			started = true;
+		}else{
+            errorMessage.setDisplayText("No script detected");
+        }
+	}
 	
 	/// <summary> 	
 	/// Runs in background TcpServerThread; Handles incomming TcpClient requests 	
@@ -76,7 +94,9 @@ public class TCPRobotServer : MonoBehaviour {
 			Byte[] bytes = new Byte[1024];  			
 			while (true) { 
 				using (connectedTcpClient = tcpListener.AcceptTcpClient()) { 					
-					// Get a stream object for reading 					
+					// Get a stream object for reading 	
+					if(connectedTcpClient!=null){
+					}				
 					using (NetworkStream stream = connectedTcpClient.GetStream()) { 						
 						int length; 						
 						// Read incomming stream into byte arrary. 		
@@ -147,6 +167,7 @@ public class TCPRobotServer : MonoBehaviour {
 		str += roboController.getLeftDist() + " ";
 		str += roboController.getRightDist() + " ";
 		str += (turnedOn ? 1 : 0) + " ";
+		str += (started ? 1 : 0) + " ";
 		sendMessage(str);
 
 	}
