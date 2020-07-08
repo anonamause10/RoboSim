@@ -15,8 +15,7 @@ public class CameraMovement : MonoBehaviour {
 	public Vector3 zoomedOutPos;
 	private Vector3 zoomPosDamp = Vector3.zero;
 	private Vector3 prevZoomOutPos;
-	public Vector3 zoomRot;
-	private Vector3 zoomRotDamp = Vector3.zero;
+	public Quaternion zoomRot;
 	private bool transitioning = false;
 	private Terrain terrain;
 	
@@ -49,7 +48,7 @@ public class CameraMovement : MonoBehaviour {
 	{
 	    targetDistance = Vector3.Distance(transform.position, target.transform.position);
 		targetDistanceInitial = targetDistance;
-		zoomRot = new Vector3(90,0,0);
+		zoomRot = Quaternion.Euler(90,0,0);
 		zoom = true;
 		terrain = GameObject.Find("Floor").GetComponent<Terrain>();
 		zoomedOutPos = new Vector3(terrain.terrainData.size.x/2,Mathf.Max(terrain.terrainData.size.x,terrain.terrainData.size.z),terrain.terrainData.size.z/2);
@@ -155,32 +154,32 @@ public class CameraMovement : MonoBehaviour {
 		switch (camMode)
 		{
 			case CameraMode.FirstPerson:
-				zoomRot = target.transform.eulerAngles;
+				zoomRot = Quaternion.Euler(target.transform.eulerAngles);
 				zoomedOutPos = target.transform.position+target.transform.forward;
 				break;
 			case CameraMode.Free:
 				zoomedOutPos = target.transform.position+(Vector3.forward*targetDistanceInitial);
-				zoomRot = new Vector3(0,180,0);
+				zoomRot = Quaternion.Euler(0,180,0);
 				break;
 			case CameraMode.LockToRobotForward:
-				zoomRot = target.transform.eulerAngles;
+				zoomRot = Quaternion.Euler(target.transform.eulerAngles);
 				zoomedOutPos = target.transform.position-target.transform.forward*targetDistanceInitial;
 				break;
 			case CameraMode.ZoomedOut:
 				zoomedOutPos = prevZoomOutPos;
-				zoomRot = new Vector3(90,0,0);
+				zoomRot = Quaternion.Euler(90,0,0);
 				break;
 			case CameraMode.TopDown:
 				zoomedOutPos = target.transform.position + Vector3.up*5;
-				zoomRot = new Vector3(90,0,0);
+				zoomRot = Quaternion.Euler(90,0,0);
 				break;
 			default:
 				zoomedOutPos = target.transform.position+(Vector3.forward*targetDistanceInitial);
-				zoomRot = new Vector3(0,180,0);
+				zoomRot = Quaternion.Euler(0,180,0);
 				break;
 		}
 		transform.position = Vector3.SmoothDamp(transform.position, zoomedOutPos, ref zoomPosDamp, 0.3f);
-		transform.eulerAngles = Vector3.SmoothDamp(transform.eulerAngles, zoomRot, ref zoomRotDamp, 0.3f);
+		transform.rotation = Quaternion.Slerp(transform.rotation, zoomRot, 5*Time.deltaTime);
 		if((transform.position - zoomedOutPos).magnitude<0.004f){
 			transitioning = false;
 			if(camMode == CameraMode.Free||camMode == CameraMode.LockToRobotForward){
@@ -192,7 +191,6 @@ public class CameraMovement : MonoBehaviour {
 
 	void zoomOutCam(){
 		transform.position = Vector3.SmoothDamp(transform.position, zoomedOutPos, ref zoomPosDamp, 0.1f);
-		transform.eulerAngles = Vector3.SmoothDamp(transform.eulerAngles, zoomRot, ref zoomRotDamp, 0.1f);
 		Vector3 delVec = new Vector3(Input.GetAxis("Horizontal"),0,Input.GetAxis("Vertical"));
 		zoomedOutPos += Mathf.Max(terrain.terrainData.size.x,terrain.terrainData.size.z)/5*delVec*Time.deltaTime;
 		zoomedOutPos += -1*Vector3.up*Input.GetAxis("Mouse ScrollWheel")*20;

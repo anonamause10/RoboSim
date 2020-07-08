@@ -2697,13 +2697,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
-  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 25, y: 0.65, z: 23}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 25, y: 0.65, z: 17}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &963194229
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2719,7 +2719,7 @@ MonoBehaviour:
   turnSpeed: 4
   target: {fileID: 1478822338}
   zoomedOutPos: {x: 0, y: 0, z: 0}
-  zoomRot: {x: 0, y: 0, z: 0}
+  zoomRot: {x: 0, y: 0, z: 0, w: 0}
   minTurnAngle: -90
   maxTurnAngle: 0
   spawnObjects:
@@ -4650,10 +4650,11 @@ MonoBehaviour:
     m_VerticalOverflow: 1
     m_LineSpacing: 1.5
   m_Text: "When running script, make sure telecontrol is off!\nRobot Controls (Must
-    have Toggle Telecontrol Checked)\n\tWASD/Arrow keys - move robot\n\tQ - turn
-    left\n\tE - turn right\nObstacle Placement Controls\n\tScroll or Q/E - Zoom in/out
-    (Laptop users should use Q/E)\n\tArrow Keys/WASD - Pan Camera\n\tClick - Place
-    block\nEscape - Reveal Mouse\nClick Anywhere - Hide Mouse (control block cursor/camera)"
+    have Toggle Telecontrol Checked)\n\tW/Up Arrow - Move Forward\n\tS/Down Arrow
+    - Move Backwards\n\tA/D or Left/Right Arrows - Turn Left or Right\nObstacle Placement
+    Controls\n\tScroll or Q/E - Zoom in/out (Laptop users should use Q/E)\n\tArrow
+    Keys/WASD - Pan Camera\n\tClick - Place block\nEscape - Reveal Mouse\nClick Anywhere
+    - Hide Mouse (control block cursor/camera)"
 --- !u!222 &1549902295
 CanvasRenderer:
   m_ObjectHideFlags: 0
