@@ -2,7 +2,7 @@
 
 ## This is a robotics simulator, using the Unity game engine.
 
-![Example image](https://imgur.com/a/h7fOqdK)
+![Example image](https://i.imgur.com/iIWgB9h.png)
 
 
 
